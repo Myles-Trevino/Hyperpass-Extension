@@ -105,7 +105,8 @@
 							"source/assets"
 						],
 						"styles": ["source/styles.scss"],
-						"scripts": []
+						"scripts": [],
+						"codeCoverage": true
 					}
 				},
 				"lint":
