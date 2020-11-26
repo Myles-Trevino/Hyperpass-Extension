@@ -1,0 +1,68 @@
+# Copyright Myles Trevino
+# Licensed under the Apache License, Version 2.0
+# http://www.apache.org/licenses/LICENSE-2.0
+
+
+version: 2.1
+
+
+executors:
+  hyperpass-executor:
+      docker:
+        - image: circleci/node:latest-browsers
+      working_directory: ~/hyperpass-extension
+
+
+jobs:
+  install:
+      executor: hyperpass-executor
+      steps:
+        - checkout
+        - restore_cache:
+            key: hyperpass-extension-{{.Branch}}-{{checksum "package-lock.json"}}
+        - run: npm install
+        - save_cache:
+            key: hyperpass-extension-{{.Branch}}-{{checksum "package-lock.json"}}
+            paths:
+              - node_modules
+        - run: wget -O hyperpass-core.tar.xz https://circleci.com/api/v1.1/project/github/myles-trevino/hyperpass-core/latest/artifacts/0/hyperpass-core.tar.xz?circle-token=$API_TOKEN
+        - run: mkdir hyperpass-core
+        - run: tar -xf hyperpass-core.tar.xz -C hyperpass-core
+        - persist_to_workspace:
+            root: .
+            paths:
+              - hyperpass-core
+              - node_modules
+
+  build:
+    executor: hyperpass-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: npm run build
+
+  test:
+    executor: hyperpass-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+      - run: npm run lint
+      - run: npx codecov
+
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - install:
+          context:
+            - Hyperpass
+      - build:
+          requires:
+            - install
+      - test:
+          requires:
+            - install
