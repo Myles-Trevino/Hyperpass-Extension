@@ -5,10 +5,7 @@
 */
 
 
-/* Container. */
-#hyperpass-container
+module.exports =
 {
-	overflow: hidden;
-	width: 780px;
-	height: 600px;
+	entry: {content: 'source/hyperpass-extension/content.ts'}
 }

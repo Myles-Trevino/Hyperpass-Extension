@@ -5,8 +5,9 @@
 */
 
 
-import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import {SimplebarAngularModule} from 'simplebar-angular';
 import {HyperpassCoreModule} from 'hyperpass-core';
@@ -17,17 +18,16 @@ import {HyperpassExtensionComponent} from './hyperpass-extension.component';
 
 @NgModule
 ({
-	declarations:
-	[
-		HyperpassExtensionComponent
-	],
+	declarations: [HyperpassExtensionComponent],
 	imports:
 	[
 		BrowserModule,
+		BrowserAnimationsModule,
 		RoutingModule,
 		SimplebarAngularModule,
 		HyperpassCoreModule
-	]
+	],
+	bootstrap: [HyperpassExtensionComponent]
 })
 
 export class HyperpassExtensionModule{}

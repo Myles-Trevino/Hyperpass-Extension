@@ -42,15 +42,13 @@ jobs:
           at: .
       - run: npm run build
 
-  test:
+  lint:
     executor: hyperpass-executor
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - run: npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
       - run: npm run lint
-      - run: npx codecov
 
 
 workflows:
@@ -63,6 +61,6 @@ workflows:
       - build:
           requires:
             - install
-      - test:
+      - lint:
           requires:
             - install

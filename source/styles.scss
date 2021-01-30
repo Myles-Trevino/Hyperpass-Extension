@@ -10,3 +10,7 @@
 @import "~hyperpass-core/stylesheets/text.scss";
 @import "~hyperpass-core/stylesheets/general.scss";
 @import "~hyperpass-core/stylesheets/tiles.scss";
+@import "~hyperpass-core/stylesheets/app.scss";
+
+
+:root{ --large-gap: var(--medium-radius); }

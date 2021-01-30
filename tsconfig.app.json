@@ -8,7 +8,8 @@
 	"files":
 	[
 		"source/main.ts",
-		"source/polyfills.ts"
+		"source/polyfills.ts",
+		"source/hyperpass-extension/content.ts"
 	],
 	"include": ["source/**/*.d.ts"]
 }

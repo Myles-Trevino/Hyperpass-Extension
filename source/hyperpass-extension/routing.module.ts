@@ -14,7 +14,6 @@ import {AppComponent, LoginComponent, SignupComponent,
 
 const routes: Routes =
 [
-	{path: '', redirectTo: '/login', pathMatch: 'full'},
 	{path: 'app', component: AppComponent},
 	{path: 'login', component: LoginComponent},
 	{path: 'signup', component: SignupComponent},
