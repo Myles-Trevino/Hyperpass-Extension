@@ -7,9 +7,11 @@
 
 import {browser} from 'webextension-polyfill-ts';
 
+import {Types} from 'hyperpass-core';
+
 
 // Command callback.
-browser.runtime.onMessage.addListener((message) =>
+browser.runtime.onMessage.addListener((message: Types.Message) =>
 { if(message.type === 'Autofill') autofill(message.data); });
 
 

@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"author": "Myles Trevino",
 	"name": "Hyperpass",
-	"version": "2021.1.29",
+	"version": "2021.2.1",
 	"description": "The browser extension for the Hyperpass password manager.",
 	"homepage_url": "https://hyperpass.org",
 	"icons":

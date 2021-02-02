@@ -51,12 +51,10 @@
 						"production":
 						{
 							"fileReplacements":
-							[
-								{
-									"replace": "source/environments/environment.ts",
-									"with": "source/environments/environment.prod.ts"
-								}
-							],
+							[{
+								"replace": "source/environments/environment.ts",
+								"with": "source/environments/environment.prod.ts"
+							}],
 							"optimization": true,
 							"namedChunks": false,
 							"extractLicenses": true,
@@ -76,11 +74,14 @@
 				},
 				"lint":
 				{
-					"builder": "@angular-devkit/build-angular:tslint",
+					"builder": "@angular-eslint/builder:lint",
 					"options":
 					{
-						"tsConfig": ["tsconfig.app.json"],
-						"exclude": ["**/node_modules/**"]
+						"lintFilePatterns":
+						[
+							"source/**/*.ts",
+							"source/**/*.html"
+						]
 					}
 				}
 			}

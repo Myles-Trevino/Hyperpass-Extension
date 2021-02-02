@@ -15,4 +15,4 @@ import {environment} from './environments/environment';
 if(environment.production){ enableProdMode(); }
 
 platformBrowserDynamic().bootstrapModule(HyperpassExtensionModule)
-	.catch(err => console.error(err));
+	.catch((error) => { console.error(error); });

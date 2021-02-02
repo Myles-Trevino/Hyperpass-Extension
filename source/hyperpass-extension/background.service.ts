@@ -6,7 +6,7 @@
 
 
 import {Injectable} from '@angular/core';
-import {browser} from 'webextension-polyfill-ts';
+import {browser, Tabs} from 'webextension-polyfill-ts';
 
 import {AccountService, Types} from 'hyperpass-core';
 
@@ -15,17 +15,17 @@ import {AccountService, Types} from 'hyperpass-core';
 
 export class BackgroundService
 {
-	website = '';
-	accounts: Record<string, Types.Account> = {};
-	account?: Types.Account;
+	private website = '';
+	private accounts: Record<string, Types.Account> = {};
+	private account?: Types.Account;
 
 
 	// Constructor.
-	constructor(private accountService: AccountService){}
+	public constructor(private accountService: AccountService){}
 
 
 	// Initializer.
-	initialize(): void
+	public initialize(): void
 	{
 		// Disable navigation.
 		this.accountService.navigate = false;
@@ -36,7 +36,7 @@ export class BackgroundService
 			// Login and logout.
 			if(message.type === 'loginUpdate')
 			{
-				if(message.data) await this.accountService.automaticLogIn();
+				if(message.data as boolean) await this.accountService.automaticLogIn();
 				else this.accountService.logOut();
 				this.update();
 			}
@@ -51,7 +51,7 @@ export class BackgroundService
 			// Login timeout resets.
 			if(message.type === 'loginTimeoutReset')
 			{
-				this.accountService.loginTimeoutDuration = message.data;
+				this.accountService.loginTimeoutDuration = message.data as number;
 				this.accountService.resetLoginTimeout();
 			}
 		});
@@ -60,8 +60,8 @@ export class BackgroundService
 		this.accountService.loginTimeoutSubject.subscribe(() => { this.update(); });
 
 		// URL change callback.
-		browser.tabs.onActivated.addListener(async (activeInfo) =>
-		{ this.urlChangeCallback((await browser.tabs.get(activeInfo.tabId)).url); });
+		browser.tabs.onActivated.addListener(
+			(activeInfo) => { this.tabActivatedCallback(activeInfo); });
 
 		browser.tabs.onUpdated.addListener((tabId, changeInfo) =>
 		{ if(!changeInfo.url) this.urlChangeCallback(changeInfo.url); });
@@ -85,8 +85,17 @@ export class BackgroundService
 	}
 
 
+	// Tab activation callback.
+	private async tabActivatedCallback(
+		activeInfo: Tabs.OnActivatedActiveInfoType): Promise<void>
+	{
+		const tab = await browser.tabs.get(activeInfo.tabId);
+		this.urlChangeCallback(tab.url);
+	}
+
+
 	// URL change callback.
-	urlChangeCallback(url: string | undefined): void
+	private urlChangeCallback(url: string | undefined): void
 	{
 		if(!url) return;
 
@@ -100,7 +109,7 @@ export class BackgroundService
 
 
 	// Updates the available accounts and the context menu.
-	async update(): Promise<void>
+	private update(): void
 	{
 		try
 		{
@@ -125,12 +134,12 @@ export class BackgroundService
 		}
 
 		// Catch errors.
-		catch(error){}
+		catch(error: unknown){}
 	}
 
 
 	// Creates the context menus.
-	createContextMenus(): void
+	private createContextMenus(): void
 	{
 		browser.contextMenus.removeAll();
 
@@ -173,16 +182,20 @@ export class BackgroundService
 			id: 'Account', title: 'Account', contexts: ['all']});
 
 		for(const [key, account] of Object.entries(this.accounts))
-		{
-			if(this.account.url.includes(this.website)) browser.contextMenus.create({
-				parentId: 'Account', id: `Account-${key}`, title: account.username,
-				type: 'radio', checked: account.default, contexts: ['all']});
-		}
+			if(this.account.url.includes(this.website)) browser.contextMenus.create
+			({
+				parentId: 'Account',
+				id: `Account-${key}`,
+				title: account.username,
+				type: 'radio',
+				checked: account.default,
+				contexts: ['all']
+			});
 	}
 
 
 	// Sends the content script a message to perform autofilling.
-	async handleAutofill(action: string): Promise<void>
+	private handleAutofill(action: string): void
 	{
 		if(action === 'Autofill Username')
 			this.sendMessage({type: 'Autofill', data: this.account?.username});
@@ -193,19 +206,19 @@ export class BackgroundService
 
 
 	// Sends a message to the active tab.
-	async sendMessage(message: Types.Message): Promise<void>
+	private async sendMessage(message: Types.Message): Promise<void>
 	{
 		const tabs = await browser.tabs.query({currentWindow: true, active: true});
 		for(const tab of tabs)
 		{
-			if(!tab.id) continue;
+			if(tab.id === undefined) continue;
 			browser.tabs.sendMessage(tab.id, message);
 		}
 	}
 
 
 	// Sets the account with the given key as the default for its URL.
-	setDefaultAccount(key: string): void
+	private setDefaultAccount(key: string): void
 	{
 		const accounts = this.accountService.getVault().accounts;
 		const account = accounts[key];

@@ -9,8 +9,7 @@ import {Component, OnInit} from '@angular/core';
 import {browser} from 'webextension-polyfill-ts';
 import {Router} from '@angular/router';
 
-import {UtilityService} from 'hyperpass-core';
-import {AccountService} from 'hyperpass-core';
+import {AccountService, UtilityService} from 'hyperpass-core';
 import {BackgroundService} from './background.service';
 
 
@@ -24,14 +23,14 @@ import {BackgroundService} from './background.service';
 export class HyperpassExtensionComponent implements OnInit
 {
 	// Constructor.
-	constructor(private router: Router,
-		private utilityService: UtilityService,
-		private backgroundService: BackgroundService,
-		private accountService: AccountService){}
+	public constructor(private readonly router: Router,
+		private readonly utilityService: UtilityService,
+		private readonly backgroundService: BackgroundService,
+		private readonly accountService: AccountService){}
 
 
 	// Initializer.
-	async ngOnInit(): Promise<void>
+	public async ngOnInit(): Promise<void>
 	{
 		await this.utilityService.initialize();
 
@@ -44,16 +43,18 @@ export class HyperpassExtensionComponent implements OnInit
 		{
 			// Send login update messages.
 			this.accountService.loginSubject.subscribe((loggedIn) =>
-				{ browser.runtime.sendMessage({type: 'loginUpdate', data: loggedIn}); });
+			{ browser.runtime.sendMessage({type: 'loginUpdate', data: loggedIn}); });
 
 			// Send login timeout reset messages.
-			this.accountService.resetLoginTimeoutSubject
-				.subscribe((loginTimeoutDuration) => { browser.runtime.sendMessage(
-				{message: 'loginTimeoutReset', loginTimeoutDuration}); });
+			this.accountService.resetLoginTimeoutSubject.subscribe((loginTimeoutDuration) =>
+			{
+				browser.runtime.sendMessage({message: 'loginTimeoutReset',
+					loginTimeoutDuration});
+			});
 
 			// Send vault update messages.
 			this.accountService.vaultUpdateSubject.subscribe(() =>
-				{ browser.runtime.sendMessage({type: 'vaultUpdate', data: null}); });
+			{ browser.runtime.sendMessage({type: 'vaultUpdate', data: null}); });
 
 			// Navigate to the app page.
 			this.router.navigate(['/app']);
