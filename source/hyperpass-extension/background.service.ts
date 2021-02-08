@@ -8,7 +8,7 @@
 import {Injectable} from '@angular/core';
 import {browser, Tabs} from 'webextension-polyfill-ts';
 
-import {AccountService, Types} from 'hyperpass-core';
+import {UtilityService, AccountService, Types} from 'hyperpass-core';
 
 
 @Injectable({providedIn: 'root'})
@@ -21,7 +21,8 @@ export class BackgroundService
 
 
 	// Constructor.
-	public constructor(private accountService: AccountService){}
+	public constructor(private readonly utilityService: UtilityService,
+		private readonly accountService: AccountService){}
 
 
 	// Initializer.
@@ -64,7 +65,7 @@ export class BackgroundService
 			(activeInfo) => { this.tabActivatedCallback(activeInfo); });
 
 		browser.tabs.onUpdated.addListener((tabId, changeInfo) =>
-		{ if(!changeInfo.url) this.urlChangeCallback(changeInfo.url); });
+		{ if(changeInfo.url) this.urlChangeCallback(changeInfo.url); });
 
 		// Context menu click callback.
 		browser.contextMenus.onClicked.addListener((info) =>
@@ -99,9 +100,8 @@ export class BackgroundService
 	{
 		if(!url) return;
 
-		// Extract the website from the URL.
-		const start = url.indexOf('://')+3;
-		this.website = url.substring(start, url.indexOf('/', start)).replace('www.', '');
+		// Extract the domain from the URL.
+		this.website = this.utilityService.extractDomain(url);
 
 		// Update.
 		if(this.accountService.loggedIn) this.update();
@@ -119,11 +119,12 @@ export class BackgroundService
 
 			if(this.accountService.loggedIn && this.website)
 			{
+				// Add accounts that match the current
+				// website to the available accounts array.
 				const vault = this.accountService.getVault();
-
 				for(const [key, value] of Object.entries(vault.accounts))
 				{
-					if(!value.url.includes(this.website)) continue;
+					if(!this.accountMatchesWebsite(value)) continue;
 					this.accounts[key] = value;
 					if(value.default) this.account = value;
 				}
@@ -135,6 +136,21 @@ export class BackgroundService
 
 		// Catch errors.
 		catch(error: unknown){}
+	}
+
+
+	// Checks if the given account matches the current website.
+	private accountMatchesWebsite(account: Types.Account): boolean
+	{
+		const urls = account.url.split(',');
+
+		for(let url of urls)
+		{
+			url = url.trim();
+			if(url && this.website.includes(url)) return true;
+		}
+
+		return false;
 	}
 
 
@@ -182,7 +198,7 @@ export class BackgroundService
 			id: 'Account', title: 'Account', contexts: ['all']});
 
 		for(const [key, account] of Object.entries(this.accounts))
-			if(this.account.url.includes(this.website)) browser.contextMenus.create
+			browser.contextMenus.create
 			({
 				parentId: 'Account',
 				id: `Account-${key}`,

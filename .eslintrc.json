@@ -28,6 +28,7 @@
 			"rules":
 			{
 				// ESLint.
+				"no-constant-condition": ["error", {"checkLoops": false}],
 				"no-empty": "off",
 				"no-loss-of-precision": "off",
 				"no-promise-executor-return": "error",
@@ -209,7 +210,8 @@
 						"allowComparingNullableBooleansToFalse": false
 					}
 				],
-				"@typescript-eslint/no-unnecessary-condition": "error",
+				"@typescript-eslint/no-unnecessary-condition":
+					["error", {"allowConstantLoopConditions": true}],
 				"@typescript-eslint/no-unnecessary-qualifier": "error",
 				"@typescript-eslint/no-unnecessary-type-arguments": "error",
 				"@typescript-eslint/no-unnecessary-type-constraint": "error",

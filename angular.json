@@ -41,7 +41,8 @@
 							"libsodium-wrappers",
 							"lodash",
 							"file-saver",
-							"webextension-polyfill-ts"
+							"webextension-polyfill-ts",
+							"papaparse"
 						],
 						"styles": ["source/styles.scss"],
 						"scripts": []

@@ -18,7 +18,12 @@ browser.runtime.onMessage.addListener((message: Types.Message) =>
 // Fills the currently focused input element with the given string.
 function autofill(value: string): void
 {
-	if(!value) return;
-	const element = document.querySelector<HTMLInputElement>('input:focus');
-	if(element) element.value = value;
+	try
+	{
+		if(!value) return;
+		const element = document.querySelector<HTMLInputElement>('input:focus');
+		if(element) element.value = value;
+	}
+
+	catch(error: unknown){ console.error('Hyperpass autofill failed.'); }
 }
